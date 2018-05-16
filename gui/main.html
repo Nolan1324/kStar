@@ -1,0 +1,168 @@
+<html>
+    <head>
+        <title>kStar - Main</title>
+        <!--Import Google Icon Font-->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <!--Import materialize.css-->
+        <!-- <link type="text/css" rel="stylesheet" href="materialize/css/materialize.min.css" media="screen,projection"/> -->
+
+        <!--Let browser know website is optimized for mobile-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+        <link href="favicon.png" rel="shortcut icon" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <link href="style.css" rel="stylesheet" type="text/css" />
+        <link href="theme.css" rel="stylesheet" type="text/css" />
+
+    </head>
+    <body>
+        <nav>
+            <div class="nav-wrapper">
+                <svg onclick="location.href='/kstar'" style='padding-left:10px;height:100%;cursor:pointer;' id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720.76 780"><defs><style>.cls-1{font-size:956.33px;font-family:TimesNewRomanPSMT, Times New Roman;}.cls-1,.cls-2{fill:var(--main-logo-color);}</style></defs><title>kStar</title><text class="cls-1" transform="translate(0 700)">K</text><polygon class="cls-2" points="631.64 292.24 643.22 378.39 720.76 417.69 642.4 455.32 628.99 541.21 568.98 478.32 483.16 492.1 524.43 415.6 484.8 338.23 570.31 353.84 631.64 292.24" transform="translate(0 -94.76)"></polygon></svg>
+                <ul id="nav-mobile" class="right hide-on-med-and-down">
+                    <li><a href="/kstar">Home</a></li>
+                    <li><a href="/kstar/settings.html">Settings</a></li>
+                    <li><a href="/kstar/logout">Sign out</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div class="row">
+            <div class="col s10 offset-s1" id="grades">
+
+            </div>
+        </div>
+
+        <div class="center">
+            <div id="loader" class="preloader-wrapper big">
+                <div class="spinner-layer spinner-blue-only">
+                    <div class="circle-clipper left">
+                        <div class="circle"></div>
+                    </div><div class="gap-patch">
+                    <div class="circle"></div>
+                </div><div class="circle-clipper right">
+                    <div class="circle"></div>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- <div class="fixed-action-btn">
+            <a class="btn-floating btn-large teal">
+                <i class="large material-icons">view_agenda</i>
+            </a>
+            <ul>
+                <li><a class="btn-floating teal" onclick="handleUp()"><i class="material-icons">keyboard_arrow_up</i></a></li>
+                <li><a class="btn-floating teal" onclick="handleDown()"><i class="material-icons">keyboard_arrow_down</i></a></li>
+            </ul>
+        </div> -->
+
+        <!-- Scripts -->
+        <script type="text/javascript" src="/kstar/materialize/js/bin/materialize.min.js"></script>
+        <script>
+        var scrollPos = 0;
+        var gradingScale;
+        var highlightChanges = 0;
+
+        $(function() {
+            $.get("/kstar/settings/highlight_changes", function(data) {
+                if(data == "1") {
+                    highlightChanges = 1;
+                }
+            })
+
+            $(".fixed-action-btn").floatingActionButton();
+            $("#loader").addClass("active");
+            $("#grades").load("/kstar/load/assignments", function(data, status, xhr) {
+                $("#loader").removeClass("active");
+                $(".scrollspy").scrollSpy({
+                scrollOffset: 0,
+                getActiveElement: function(data) {
+                    scrollPos = $("#" + data).index();
+                }});
+                $(".collapsible").collapsible();
+                if(xhr.getResponseHeader("new") == "1") {
+                    M.toast({html: xhr.getResponseHeader("new") + " new assignment loaded"})
+                } else if(xhr.getResponseHeader("new") > "1") {
+                    M.toast({html: xhr.getResponseHeader("new") + " new assignments loaded"})
+                }
+                $(".editable").keypress(function(evt) {
+                    var length = $(this).text().length;
+                    var regex = /[0-9]|\./;
+                    if (evt.which == 13 || !regex.test(evt.key) || length > 2) {
+                        evt.preventDefault();
+                    } else {
+                        if(highlightChanges) {
+                            $(this).addClass("text-darken-2 red-text")
+                        }
+                    }
+                });
+                $(".editable").keyup(function() {
+                    var rowData = $(this).parent().children();
+                    var newPercent = Math.round((rowData[3].textContent / rowData[2].textContent) * 1000) / 10;
+                    rowData[4].textContent = newPercent + "%";
+                    if(highlightChanges) {
+                        rowData[4].classList.add("text-darken-2");
+                        rowData[4].classList.add("red-text");
+                    }
+
+                    var ptsPossible = 0;
+                    $(this).parent().parent().find(".ptsPossible").each(function(name, value) {
+                        if(value.textContent != "") {
+                            ptsPossible += parseInt(value.textContent);
+                        }
+                    })
+                    var score = 0;
+                    $(this).parent().parent().find(".score").each(function(name, value) {
+                        if(value.textContent != "") {
+                            score += parseInt(value.textContent);
+                        }
+                    })
+                    var percentSpan = $(this).parent().parent().parent().parent().parent().find(".percent");
+                    percentSpan.text(Math.round((score / ptsPossible) * 1000) / 10);
+                    if(highlightChanges) {
+                        percentSpan.parent().addClass("text-darken-2 red-text")
+                    }
+                    percentSpan.keyup();
+                })
+                $(".material-icons").parent().click(function() {
+                    var check = $(this).children(":first")
+                    if(check.text() == "") {
+                        check.text("check")
+                    } else {
+                        check.text("")
+                    }
+                })
+            });
+            $.get("/kstar/load/scale", function(data, status, xhr) {
+                gradingScale = $.parseJSON(data);
+                $(".percent").attr("contenteditable", "true")
+                $(".percent").keypress(function(evt) {
+                    var length = $(this).text().length;
+                    var regex = /[0-9]|\./;
+                    if (evt.which == 13 || !regex.test(evt.key) || length > 4) {
+                        evt.preventDefault();
+                    } else {
+                        if(highlightChanges) {
+                            $(this).parent().addClass("text-darken-2 red-text")
+                        }
+                    }
+                });
+                $(".percent").keyup(function() {
+                    var period = $(this).attr("period");
+                    var percent = parseFloat($(this).text());
+                    var scale = gradingScale[period].grades;
+                    for(var key in scale) {
+                        if(percent >= key) {
+                            $(".grade[period=" + period + "]").text(scale[key]);
+                            break;
+                        }
+                    }
+                });
+                if(xhr.getResponseHeader("fromcache") != "1") {
+                    M.toast({html: "Percents can now be changed"})
+                }
+            })
+        })
+        </script>
+    </body>
+</html>

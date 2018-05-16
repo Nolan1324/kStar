@@ -1,0 +1,39 @@
+@import "materialize/sass/materialize.scss";
+
+svg {
+    --main-logo-color: white;
+}
+
+.main-bg-color {
+    @extend .black;
+    @extend .lighten-4;
+}
+
+.main-txt-color {
+    @extend .white-text;
+}
+
+.second-txt-color {
+    @extend .grey-text;
+}
+
+.main-nav-color {
+    @extend .grey;
+    @extend .darken-3;
+}
+
+.main-btn-color {
+    @extend .grey;
+    @extend .darken-3;
+}
+
+.main-tbl-color {
+    @extend .grey;
+    @extend .darken-3;
+}
+
+$second-tbl-color: map-get($grey, "darken-4");
+$main-chk-color: map-get($grey, "darken-3");
+$main-intxt-color: white;
+
+@import "base_theme.scss";

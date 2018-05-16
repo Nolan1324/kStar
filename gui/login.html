@@ -1,0 +1,126 @@
+<html>
+    <head>
+        <title>kStar - Login</title>
+        <!--Import Google Icon Font-->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <!--Import materialize.css-->
+        <!-- <link type="text/css" rel="stylesheet" href="materialize/css/materialize.min.css" media="screen,projection"/> -->
+
+        <!--Let browser know website is optimized for mobile-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+        <link href="favicon.png" rel="shortcut icon" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <link href="style.css" rel="stylesheet" type="text/css" />
+        <link href="theme.css" rel="stylesheet" type="text/css" />
+
+    </head>
+    <body>
+        <nav>
+            <div class="nav-wrapper">
+                <svg onclick="location.href='/kstar'" style='padding-left:10px;height:100%;cursor:pointer;' id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720.76 780"><defs><style>.cls-1{font-size:956.33px;font-family:TimesNewRomanPSMT, Times New Roman;}.cls-1,.cls-2{fill:var(--main-logo-color);}</style></defs><title>kStar</title><text class="cls-1" transform="translate(0 700)">K</text><polygon class="cls-2" points="631.64 292.24 643.22 378.39 720.76 417.69 642.4 455.32 628.99 541.21 568.98 478.32 483.16 492.1 524.43 415.6 484.8 338.23 570.31 353.84 631.64 292.24" transform="translate(0 -94.76)"></polygon></svg>
+                <ul id="nav-mobile" class="right hide-on-med-and-down">
+                    <li><a href="/kstar">Home</a></li>
+                    <li><a href="/kstar/settings.html">Settings</a></li>
+                    <li><a href="/kstar/logout">Sign out</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div class="center">
+            <div class="row">
+                <h1 style="font-family: 'Times New Roman', Times, serif;">kStar</h1>
+            </div>
+            <form id="login_form" action="logincreds.html" method="post">
+                <div class="row">
+                    <div class="input-field col s4 offset-s4">
+                        <i class="material-icons prefix">fiber_pin</i>
+                        <input id="pin" name="pin" type="text" value="$$$autoPins$$$" autocomplete="off" class="validate" maxlength="8" onkeypress="validate(event)">
+                        <label for="pin">PIN</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s4 offset-s4">
+                        <i class="material-icons prefix">vpn_key</i>
+                        <input id="password" name="password" type="password" class="validate" maxlength="6" onkeypress="validate(event)">
+                        <label for="password">Password</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s4 offset-s4">
+                        <label>
+                            <input type="checkbox" name="remember_me" class="filled-in" checked="checked" />
+                            <span>Remember me</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s3 offset-s3 l1 offset-l5 right-align">
+                        <a class="waves-effect waves-light btn" href="javascript:submitLogin();">Submit</a>
+                    </div>
+                    <div class="col s3 l1 left-align">
+                        <a class="waves-effect waves-light btn" href="javascript:resetLogin();">Reset</a>
+                    </div>
+                </div>
+                <div class="row ">
+                    <div id="loginErrorMsg" class="col s12" style="color:red"></div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Scripts -->
+        <script type="text/javascript" src="/kstar/materialize/js/bin/materialize.min.js"></script>
+        <script>
+            function submitLogin() {
+                if($("#pin").val() == "" || $("#password").val() == "") {
+                    $("#loginErrorMsg").text("Pin and password required");
+                    if($("#password").val() == "") {
+                        $("#password").addClass("invalid");
+                        $("#password").focus();
+                    }
+                    if($("#pin").val() == "") {
+                        $("#pin").addClass("invalid");
+                        $("#pin").focus();
+                    }
+                } else {
+                    $.post($("#login_form").attr("action"), $("#login_form").serialize(), function(data) {
+                        if(data.valid == 1) {
+                            location.href = "/kstar/main.html"
+                        } else {
+                            $("#loginErrorMsg").text(data.msg);
+                        }
+                    })
+                }
+            }
+
+            function resetLogin() {
+                $("#login_form")[0].reset();
+                $("#loginErrorMsg").text("");
+                $("#pin").focus();
+            }
+
+            function validate(evt) {
+                var theEvent = evt || window.event;
+                var key = theEvent.keyCode || theEvent.which;
+                key = String.fromCharCode( key );
+                var regex = /[0-9]|\./;
+                if(!regex.test(key)) {
+                    theEvent.returnValue = false;
+                    if(theEvent.preventDefault) theEvent.preventDefault();
+                }
+            }
+
+            $(document).ready(function(){
+                $("#pin").autocomplete({
+                    data: {"2001":null,"2002":null,"2003":null},
+                    onAutocomplete: function(){setTimeout(function(){$("#pin").focus()}, 1)}
+                });
+
+                $("#login_form").keypress(function(evt) {
+                    if(evt.keyCode == 13) {
+                        submitLogin();
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>

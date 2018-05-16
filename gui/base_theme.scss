@@ -1,0 +1,53 @@
+:root {
+    --main-logo-color: white;
+}
+
+body {
+    @extend .main-bg-color;
+    @extend .main-txt-color;
+}
+
+nav {
+    @extend .main-nav-color;
+}
+
+[type="checkbox"].filled-in:checked + span:not(.lever):after {
+    border: 2px solid $main-chk-color;
+    background-color: $main-chk-color;
+}
+
+.btn {
+    @extend .main-btn-color;
+}
+
+.material-icons {
+    &:not(.active) {
+        @extend .main-txt-color;
+    }
+    &.active {
+        @extend .second-txt-color;
+    }
+}
+
+.input-field {
+    > input {
+        color: $main-intxt-color;
+    }
+}
+
+table {
+    @extend .striped;
+    @extend .main-tbl-color;
+}
+
+table.striped > tbody > tr:nth-child(odd) {
+    background-color: $second-tbl-color;
+}
+
+.badge {
+    @extend .main-btn-color;
+}
+
+.lever {
+    @extend .main-btn-color;
+}
